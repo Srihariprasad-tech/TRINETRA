@@ -57,3 +57,18 @@ export function analyzeContent(text) {
 
   return signals;
 }
+
+// Sandbox helper: return the matched phrase behind each detected content signal,
+// reusing the SAME DETECTORS as analyzeContent (single source of truth). Used to
+// power the evidence-first explainability panel. Never mutates detection results.
+export function contentEvidence(text) {
+  const t = text || '';
+  const out = [];
+  for (const d of DETECTORS) {
+    const m = t.match(d.re);
+    if (m) out.push({ code: d.code, phrase: m[0] });
+  }
+  const brand = BRANDS.find(b => new RegExp(`\\b${b.name}\\b`, 'i').test(t));
+  if (brand && ACTION_RE.test(t)) out.push({ code: 'BRAND_IMPERSONATION_CONTENT', phrase: brand.name });
+  return out;
+}

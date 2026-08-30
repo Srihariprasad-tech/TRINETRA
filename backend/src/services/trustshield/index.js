@@ -5,7 +5,8 @@ import { makeSignal } from './utils.js';
 import { predictUrl } from './mlClient.js';
 
 // Build an ML risk signal from a model probability (or null if not risky/unavailable).
-async function mlUrlSignal(parsed) {
+// Exported so the Sandbox can reuse the exact same ML enrichment as the scanners.
+export async function mlUrlSignal(parsed) {
   if (!parsed) return { signal: null, ml: null };
   const features = extractUrlFeatures(parsed);
   const pred = await predictUrl(features);

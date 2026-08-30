@@ -20,6 +20,7 @@ import scoreRoutes from './routes/scoreRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import settingsRoutes from './routes/settingsRoutes.js';
 import scanRoutes from './routes/scanRoutes.js';
+import sandboxRoutes from './routes/sandboxRoutes.js';
 import { requireAuth } from './middleware/requireAuth.js';
 import { migrate } from './utils/migrate.js';
 import { originCheck } from './middleware/originCheck.js';
@@ -103,6 +104,8 @@ app.get('/api/health', (req, res) => {
 
 // TrustShield fraud-detection scan APIs (no authentication in MVP).
 app.use('/api', scanRoutes);
+// TrustShield Sandbox — defensive training/demonstration environment.
+app.use('/api/sandbox', sandboxRoutes);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/assistant', assistantRoutes);

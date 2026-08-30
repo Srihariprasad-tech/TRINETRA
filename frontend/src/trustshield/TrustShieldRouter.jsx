@@ -9,6 +9,8 @@ import QrScanner from './pages/QrScanner';
 import History from './pages/History';
 import ScanDetail from './pages/ScanDetail';
 import About from './pages/About';
+import Sandbox from './pages/Sandbox';
+import SandboxCompare from './pages/SandboxCompare';
 
 export default function TrustShieldRouter() {
   return (
@@ -20,6 +22,8 @@ export default function TrustShieldRouter() {
         <Route path="/scan/email" element={<EmailScanner />} />
         <Route path="/scan/message" element={<MessageScanner />} />
         <Route path="/scan/qr" element={<QrScanner />} />
+        <Route path="/sandbox" element={<Sandbox />} />
+        <Route path="/sandbox/compare" element={<SandboxCompare />} />
         <Route path="/history" element={<History />} />
         <Route path="/history/:id" element={<ScanDetail />} />
         <Route path="/about" element={<About />} />
