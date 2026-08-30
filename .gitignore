@@ -1,12 +1,8 @@
 # Environment variables / secrets
 .env
 .env.*
-!.env.example
 *.env
-# Deploy build context needs these env files present (values are non-secret
-# templates/config; real secrets are injected via the platform's managed secrets):
-!backend/.env
-!frontend/.env
+!.env.example
 
 # Credentials / certificates
 credentials.json
