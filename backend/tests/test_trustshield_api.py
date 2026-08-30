@@ -3,7 +3,7 @@ import os
 import requests
 import pytest
 
-BASE = "https://9fff2426-305b-47a8-9e65-809d8d5dbc17.preview.emergentagent.com"
+BASE = "https://sandbox-analysis.preview.emergentagent.com"
 API = f"{BASE}/api"
 ML = "http://localhost:5001"
 
