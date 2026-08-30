@@ -29,6 +29,9 @@ import { getJwtSecret } from './utils/auth.js';
 const __filename2 = fileURLToPath(import.meta.url);
 const __dirname2 = path.dirname(__filename2);
 dotenv.config({ path: path.resolve(__dirname2, '../../.env') });
+// Also load backend/.env if present (used by the deployment build context / container).
+// dotenv does not override already-set vars, so the root .env / injected env keep precedence.
+dotenv.config({ path: path.resolve(__dirname2, '../.env') });
 const frontendDist = path.join(__dirname2, '../../frontend/dist');
 
 // — Startup sanity checks (#24): fail fast with a clear message —

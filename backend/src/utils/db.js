@@ -5,6 +5,8 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
+// Also load backend/.env if present (deployment container). Non-overriding.
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL || 'postgresql://postgres:postgres@127.0.0.1:5432/nexnetra',

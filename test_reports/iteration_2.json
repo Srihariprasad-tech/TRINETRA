@@ -1,0 +1,31 @@
+{
+  "summary": "Backend-only regression test of TrustShield (Node/Express + PostgreSQL) after adding backend/.env fallback loading. Created /app/backend/tests/backend_test.py (pytest, 19 tests) covering health, all sandbox endpoints (scenarios, analyze, analyze-by-scenarioId, compare, runs list/detail/delete, validation edge cases) and legacy scanner/dashboard regression. 19/19 pytest passed. Existing vitest suite also re-run: 40/40 passed (5 files). Additionally verified dotenv load order empirically: with root .env absent, backend/.env supplies PORT/JWT_SECRET/DATABASE_URL; with both present root .env keeps precedence. No functional regression from the env change.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "config: /app/.gitignore", "issue": ".gitignore ignores '.env', '.env.*' and '*.env', so the newly created /app/backend/.env is git-ignored. If the deploy build context comes from git rather than the raw workspace, the original 'backend/.env not found' build error can reappear. Consider committing a backend/.env.example plus a whitelist rule (!backend/.env) or having the build not require the file."},
+      {"endpoint": "config: root /app/.env vs /app/backend/.env", "issue": "Because backend/.env is loaded non-overriding, root .env wins: root PORT=4000 and NODE_ENV=development override backend/.env PORT=8001. In deployment, if root .env is also shipped, the service would bind 4000 (not 8001) and NODE_ENV=development would skip the production assertEnv(DATABASE_URL/CLIENT_ORIGIN) checks. Works today only because PORT=8001 is injected on the command line."},
+      {"endpoint": "config: /app/backend/.env JWT_SECRET", "issue": "backend/.env contains a placeholder secret 'trustshield-prod-please-override-with-managed-secret-32chars'. If root .env/injected env is absent in prod, this predictable value becomes the signing key. Should be a managed secret."},
+      {"endpoint": "GET /api/sandbox/scenarios", "issue": "Not a bug, just noted for future tests: scenario objects expose sample text as 'sampleContent' (not 'content')."}
+    ]
+  },
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": ["/app/backend/tests/backend_test.py", "/app/test_reports/pytest/pytest_results.xml", "/app/backend/test/sandbox.test.js", "/app/backend/test/sandbox.repo.test.js"],
+  "action_items": [
+    "Ensure backend/.env survives the deploy build context despite .gitignore ignoring *.env (add !backend/.env or a committed backend/.env.example).",
+    "Align PORT/NODE_ENV between root .env and backend/.env (root currently wins with PORT=4000, NODE_ENV=development).",
+    "Replace placeholder JWT_SECRET in backend/.env with a managed secret."
+  ],
+  "critical_code_review_comments": [
+    "Env fallback implementation is correct and idempotent (dotenv non-override) in both server.js and utils/db.js; verified empirically.",
+    "utils/db.js still hardcodes a default DATABASE_URL fallback string ('postgresql://postgres:postgres@127.0.0.1:5432/nexnetra') — with env-only config policy this should fail fast instead of silently pointing at localhost in prod.",
+    "POST /api/sandbox/analyze correctly returns 400 for empty content, unsupported inputType, missing inputType and >20000 char content; DELETE /api/sandbox/runs verified to clear sandbox runs only (production /api/scans count unchanged)."
+  ],
+  "updated_files": ["/app/backend/tests/backend_test.py"],
+  "success_rate": {"backend": "100% (19/19 pytest, 40/40 vitest)", "frontend": "not tested (backend-only request)"},
+  "seed_data_creation": "Sandbox runs created by analyze/compare tests; cleared at the end via DELETE /api/sandbox/runs. A few TrustShield scans created by regression scanner tests (left in place, harmless).",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Node backend runs manually on port 8001 (PORT=8001 node backend/src/server.js). frontend/.env has no REACT_APP_BACKEND_URL (only empty VITE_API_URL), so backend_test.py falls back to http://localhost:8001. No auth needed for scan/sandbox. Reusable pytest suite: /app/backend/tests/backend_test.py; vitest suite: cd /app/backend && npx vitest run.",
+  "rca_of_the_issue": "No regression found. The env fix loads root .env first then backend/.env non-overriding; verified root precedence and backend/.env-only operability. Remaining risk is purely configuration/deployment: *.env is git-ignored and root .env's PORT=4000/NODE_ENV=development override backend/.env values."
+}
