@@ -1,44 +1,21 @@
-# Environment variables (contains secrets: API keys, JWT secret, etc.)
+# Environment variables / secrets
 .env
-.env.local
-.env.production
+.env.*
+!.env.example
+*.env
 
-# SSL certificates (auto-generated, machine-specific)
-ssl/
+# Credentials / certificates
+credentials.json
+.credentials
+*.pem
+*.key
 
 # Dependencies
 node_modules/
+.venv/
+**/.venv/
 
-# Database / user data (contains password hashes)
-database/users.json
-database/data.json
-
-# Build output
-frontend/dist/
-backend/dist/
-dist/
-
-# Archives
-*.tar.gz
-*.7z
-*.zip
-
-# Logs
-*.log
-logs/
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-.env.*
-*.env
-credentials.json
-*.pem
-*.key
-.credentials
+# Python cache
+__pycache__/
+**/__pycache__/
+*.pyc
