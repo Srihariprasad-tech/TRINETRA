@@ -65,3 +65,20 @@ npm run dev:all            # backend :4000 + frontend :5175
 - P1: Educational scenario walkthrough overlay (step-through the pipeline).
 - P2: Export a sandbox run as a shareable PDF/JSON report.
 - P2: Optional live URL reputation (behind SSRF-safe fetch) — currently offline only.
+
+---
+
+## DEPLOYMENT (2026-06) — Emergent build fix + external Postgres readiness
+- Build error `read env file backend/.env: no such file` fixed: created `backend/.env`
+  (PORT=8001, CLIENT_ORIGIN, JWT_SECRET, DATABASE_URL template) and whitelisted
+  `!backend/.env` / `!frontend/.env` in `.gitignore`. Root `/app/.env` stays local-only.
+- `server.js` + `utils/db.js` load `backend/.env` as a NON-overriding fallback (managed
+  secrets and root .env keep precedence; local dev still :4000).
+- `utils/db.js` now enables Postgres SSL for remote/production (`ssl:{rejectUnauthorized:false}`)
+  and keeps it OFF for localhost — required by Neon/Supabase/RDS. Verified regression-free locally.
+- CHOSEN PATH: external managed PostgreSQL. Deploy steps for the user:
+  1) Provision Postgres (Neon/Supabase/RDS), copy its connection string (with `?sslmode=require`).
+  2) In Emergent deploy → managed secrets, set `DATABASE_URL` (the real one) and a strong `JWT_SECRET`.
+  3) Redeploy. Startup `migrate()` is idempotent and creates all tables (001–004) on the fresh DB.
+- Non-blocking: Python ML service (scikit-learn) not deployed; `mlClient.js` fails open (null).
+
